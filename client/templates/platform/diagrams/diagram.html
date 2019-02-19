@@ -1,0 +1,517 @@
+<template name="noDiagramTemplate">
+  <div class="row">
+
+      {{#with diagram_type}}
+          <div id="just_sparql" class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="padding-left:2px;">
+              <div class="row">
+                  {{> sparqlForm_see_results}}
+              </div>
+              <div id="compartment-forms" class="row" style="margin-left:5px;padding-right:2px;margin-top:5px;">
+                  {{> errorMessages}}
+              </div>
+          </div>
+
+      {{/with}}
+  </div>
+
+</template>
+
+<!-- Start of diagram template -->
+<template name="diagramTemplate">
+
+      <div style="display:{{plain.showPlain}}" >
+
+        {{> noDiagramTemplate}}
+
+      </div>
+
+      <div class="row" style="display:{{plain.showDiagram}}" >
+
+          {{#with diagram_type}}
+              <div id="diagram_and_sparql" class="col-sm-10 col-md-10 col-lg-{{diagram_size}} col-xl-10" style="padding-left:2px;padding-right:2px;">
+                  <div class="row">
+                    <div id="diagram" class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="padding-left:2px;">
+
+                        {{> diagramEditor}}
+
+                    </div>
+                  </div>
+                  <div class="row">
+                      {{> sparqlForm}}
+                  </div>
+              </div>
+
+
+              <div id="compartment-forms" class="col-sm-2 col-md-2 col-lg-{{dialog_size}} col-xl-2" style="padding-left: 8px;padding-right: 1px;">
+
+                  {{> editingMessage editing=editing}}
+
+                  {{> errorMessages}}
+
+                  <div class="panel-group" id="dialog">
+                      {{> dialog}}
+                  </div>
+              </div>
+          {{/with}}
+      </div>
+
+      {{#each templates}}
+          {{> Template.dynamic template=templateId}}
+      {{/each}}
+
+      {{> AddLink}}
+      {{> AggregateWizard}}
+      {{> AddAttribute}}
+      {{> AddAggregate}}
+      {{> AddCondition}}
+      {{> AddMergeValues}}
+      {{> SPARQL}}
+
+</template>
+<!-- End of diagram template -->
+
+
+<template name="sparqlForm">
+
+    <div id="diagram-footer-a" class="col-sm-12 col-md-12 col-lg-12" style="margin-top:10px;padding-left:2px;">
+      <ul class="nav nav-tabs" id="vq-tab">
+          <li class="active"><a data-toggle="tab" href="#sparql">SPARQL</a></li>
+          <li><a data-toggle="tab" href="#executed">Results</a></li>
+          <!--<li class="disabled"><a data-toggle="tab" href="#">Messages</a></li>-->
+      </ul>
+      <div class="tab-content">
+          <div id="executed" class="tab-pane fade">
+            {{#with executedSparql}}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    {{#if limit_set}} Only 50 rows shown.{{/if}} Total number of rows: {{number_of_rows}}.
+                </div>
+
+                <div class="panel-body">
+
+                    <div class="row">
+                        <div class="col-sm-12 col-md-12">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-condensed table-hover table-striped">
+                                    <thead>
+                                        <tr>
+                                          <th>#</th>
+                                          {{#each sparql.head.[0].variable}}
+                                             <th>{{$.name}}</th>
+                                          {{/each}}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {{#each augmentedResult}}
+                                            <tr index="{{plusOne @index}}">
+                                                <td style="width:3%;"><div class="toolbar-item" attribute="item" contentEditable="true">{{plusOneOffset @index parent.offset}}</div></td>
+                                                {{#each binding}}
+                                                {{#if literal}}
+                                                  {{#if literal.[0]._}}
+                                                <td><div class="toolbar-item" attribute="item" contentEditable="true">{{literal.[0]._}}</div></td>
+                                                  {{else}}
+                                                <td><div class="toolbar-item" attribute="item" contentEditable="true">{{literal.[0]}}</div></td>
+                                                  {{/if}}
+                                                {{else}}
+                                                  {{#if uri}}
+                                                    <td><div class="toolbar-item" attribute="item" contentEditable="true">{{uri.[0]}}</div></td>
+                                                  {{else}}
+                                                    <td><div class="toolbar-item" attribute="item" contentEditable="true"></div></td>
+                                                  {{/if}}
+                                                {{/if}}
+                                                {{/each}}
+                                            </tr>
+                                        {{/each}}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {{#if limit_set}}
+                              {{#if showPrev offset}}<button id="prev-sparql" class="btn btn-success btn-sm">Previous 50</button>{{/if}}
+                              {{#if showNext offset number_of_rows}}<button id="next-sparql" class="btn btn-success btn-sm">Next 50</button>{{/if}}
+                              <button id="download-results" class="btn btn-danger btn-sm">Download All</button>
+                            {{else}}
+                              <button id="download-results" class="btn btn-warning btn-sm">Download</button>
+                            {{/if}}
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{/with}}
+          </div>
+          <div id="sparql" class="tab-pane fade in active">
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <div class="row">
+                        <form>
+                            <div class="form-group">
+                                <div class="col-lg-12">
+                                    <textarea id="generated-sparql3" class="form-control" rows="5"></textarea>
+                                    <!-- <textarea id="generated-sparql" class="form-control" rows="5">{{generatedSparql}}</textarea> -->
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-12" style="margin-top:10px;">
+                                    <button id="reset-sparql" class="btn btn-danger btn-sm">Reset</button>
+                                    <button id="execute-sparql" class="btn btn-success btn-sm">Execute</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+          </div>
+      </div>
+
+
+    </div>
+</template>
+
+<template name="sparqlForm_see_results">
+
+    <div id="diagram-footer-b" class="col-sm-12 col-md-12 col-lg-12" style="padding-left:2px;margin-top:5px;">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                  SPARQL
+              </div>
+              <div class="panel-body">
+
+                    <div class="row">
+                        <form>
+                            <div class="form-group">
+                                <div class="col-lg-12">
+                                    <!--<textarea id="generated-sparql2" class="form-control" rows="12">{{generatedSparql}}</textarea>-->
+                                    <textarea id="generated-sparql" class="form-control" rows="12"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-12" style="margin-top:10px;">
+                                    <button id="reset-sparql" class="btn btn-danger btn-sm">Reset</button>
+                                    <button id="execute-sparql" class="btn btn-success btn-sm">Execute</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+          {{#with executedSparql}}
+          <div class="panel panel-default">
+              <div class="panel-heading">
+                  Results: {{#if limit_set}} Only 50 rows shown.{{/if}} Total number of rows: {{number_of_rows}}.
+              </div>
+
+              <div class="panel-body">
+
+                  <div class="row">
+                      <div class="col-sm-12 col-md-12">
+                          <div class="table-responsive">
+                              <table class="table table-bordered table-condensed table-hover table-striped">
+                                  <thead>
+                                      <tr>
+                                        <th>#</th>
+                                        {{#each sparql.head.[0].variable}}
+                                           <th>{{$.name}}</th>
+                                        {{/each}}
+                                      </tr>
+                                  </thead>
+                                  <tbody>
+                                      {{#each augmentedResult}}
+                                          <tr index="{{plusOne @index}}">
+                                              <td style="width:3%;"><div class="toolbar-item" attribute="item" contentEditable="true">{{plusOneOffset @index parent.offset}}</div></td>
+                                              {{#each binding}}
+                                              {{#if literal}}
+                                                {{#if literal.[0]._}}
+                                              <td><div class="toolbar-item" attribute="item" contentEditable="true">{{literal.[0]._}}</div></td>
+                                                {{else}}
+                                              <td><div class="toolbar-item" attribute="item" contentEditable="true">{{literal.[0]}}</div></td>
+                                                {{/if}}
+                                              {{else}}
+                                                {{#if uri}}
+                                                  <td><div class="toolbar-item" attribute="item" contentEditable="true">{{uri.[0]}}</div></td>
+                                                {{else}}
+                                                  <td><div class="toolbar-item" attribute="item" contentEditable="true"></div></td>
+                                                {{/if}}
+                                              {{/if}}
+                                              {{/each}}
+                                          </tr>
+                                      {{/each}}
+                                  </tbody>
+                              </table>
+                          </div>
+                          {{#if limit_set}}
+                            {{#if showPrev offset}}<button id="prev-sparql" class="btn btn-success btn-sm">Previous 50</button>{{/if}}
+                            {{#if showNext offset number_of_rows}}<button id="next-sparql" class="btn btn-success btn-sm">Next 50</button>{{/if}}
+                          {{/if}}
+                      </div>
+                  </div>
+              </div>
+          </div>
+          {{/with}}
+
+    </div>
+</template>
+
+
+
+
+<!-- Diagram editor -->
+<template name="diagramEditor">
+
+    <div elements="{{elements}}"></div>
+
+    <div id="Diagram_Editor" oncontextmenu="return false"></div>
+
+    <div id="horizontal-line" style="height: 7px;"></div>
+
+    <div id="contextMenuContainer">
+        {{> contextMenuTemplate}}
+    </div>
+<!--     {{> gritters}} -->
+</template>
+<!-- End of diagram editor -->
+
+<template name="gritters">
+
+    <div id="gritter-notice-wrapper" last-rendered="{{last_rendered}}">
+        {{#each diagram_notifications}}
+
+            <div id="{{_id}}" class="gritter-item-wrapper my-sticky-class gritter-container">
+                <div class="gritter-top"></div>
+                <div class="gritter-item">
+                 <!--   <div class="gritter-close" style="display: none;"></div> -->
+                    <img src="{{img}}" class="gritter-image">
+                    <div class="gritter-with-image">
+                        {{#if added}}
+                            <span class="gritter-title">{{user}} added a new element</span>
+                        {{/if}}
+
+                        {{#if resized}}
+                            <span class="gritter-title">{{user}} resized an element</span>
+                        {{/if}}
+
+                        {{#if moved}}
+                            <span class="gritter-title">{{user}} moved some elements</span>
+                        {{/if}}
+
+                        {{#if deleted}}
+                            <span class="gritter-title">{{user}} deleted some elements</span>
+                        {{/if}}
+
+                        {{#if style}}
+                            <span class="gritter-title">{{user}} changed style for some elements</span>
+                        {{/if}}
+
+                        {{#if updated}}
+                            <span class="gritter-title">{{user}} changed an element</span>
+                        {{/if}}
+
+                    </div>
+                    <div style="clear:both"></div>
+                </div>
+                <div class="gritter-bottom"></div>
+            </div>
+
+        {{/each}}
+    </div>
+</template>
+
+<template name="diagramAccordion">
+    <form role="form">
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" disabled={{disabled}} class="form-control dialog-input" id="name" value="{{diagramName}}">
+        </div>
+    </form>
+</template>
+
+
+<template name="diagramStyleAccordion">
+    {{> diagramStyle}}
+</template>
+
+<template name="sectionsTemplate">
+    <!-- Document container -->
+    {{#if editable}}
+        {{#if editMode}}
+            <div class="row element-sections-header">
+                <div class="pull-right">
+                    {{#if addSectionsEnabled}}
+                        <a id="addSections" class="btn btn-success"><i class="fa fa-file"></i> {{_ "add_document_sections"}}</a>
+                    {{/if}}
+                </div>
+            </div>
+        {{/if}}
+    {{/if}}
+
+
+    <ul id="sections" class="dd-list">
+        {{#each sections}}
+
+            <li class="dd-item section-item" id="{{_id}}" index="{{index}}">
+                <div class="section-container" id="{{documentId}}">
+                    <div class="section">{{{text}}}</div>
+                    <div class="row">
+                        <div class="pull-right">
+                            <ul class="list-inline font-xs list-section">
+                                <li>
+                                    <a href="{{pathFor 'document' _id=this.documentId}}" class="text-muted">{{documentName}}</a>
+                                </li>
+                                {{#if sectionsEdit}}
+                                    <li>
+                                        <a href="#" class="text-danger removeSection">{{_ "remove_section"}}</a>
+                                    </li>
+                                {{/if}}
+                            </ul>
+                        </div>
+                    </div>
+                    <hr class="hr-document">
+                </div>
+            </li>
+
+        {{/each}}
+        <!-- End of document container -->
+    </ul>
+
+    {{> addSectionsForm}}
+
+</template>
+
+<!-- Start of add sections form dialog -->
+<template name="addSectionsForm">
+    <!-- Add form-->
+    <div id="add-sections-form" class="modal fade">
+        <div id="sections-dialog" class="modal-dialog">
+            <div class="modal-content add-sections-content" style="overflow:auto;">
+                <div class="modal-header">
+                    <button id="modalCloseButton" type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">{{_ "add_sections"}}</h4>
+                </div>
+                <div class="modal-body">
+                    {{> sectionsFormDropDown}}
+                    <hr>
+                    {{> docSections}}
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <!-- End of add form-->
+</template>
+
+
+<template name="sectionsFormDropDown">
+
+    <form class="form-horizontal" role="form">
+        <div class="form-group">
+            <label for="modalDocument" class="control-label col-sm-2">{{_ "document_dialog"}}</label>
+            <div class="col-sm-8">
+                <select class="form-control" id="modalDocument">
+                    <option selected>--{{_ "no_documents_selected"}}--</option>
+                    {{#each documents}}
+                        <option id="{{_id}}">{{name}}</option>
+                    {{/each}}
+                </select>
+            </div>
+        </div>
+    </form>
+
+</template>
+
+<template name="docSections">
+    <div id="document-sections">
+        {{#each documentSections}}
+            <div id="{{_id}}" class="modal-section"> {{{text}}}
+                <div class="row">
+                    <div class="pull-right">
+                        <ul class="list-inline font-xs list-section">
+                            <li>
+                            <a href="#" class="text-danger sectionAddRemove">{{_ "document_dialog_add_section"}}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <hr class="hr-document">
+            </div>
+        {{/each}}
+    </div>
+</template>
+<!-- End of add sections form dialog -->
+
+<!-- Element style accordion -->
+<template name="elementStyleAccordion">
+    {{> configuratorElementStyleAccordion}}
+</template>
+<!-- End of element style accordion -->
+
+<!--ContextMenuTemplate variable and events are processed in /editor/context_menu.js -->
+<template name="contextMenuTemplate">
+{{#with context_menu_item}}
+    <ul id="contextMenu" class="dropdown-menu" role="menu" x="{{x}}" y="{{y}}" style="display:{{display}}; position:absolute; left:{{left}}; top:{{top}};">
+        {{#each menu}}
+            {{> menu_item}}
+        {{/each}}
+    </ul>
+{{/with}}
+</template>
+
+<template name="menu_item">
+
+    <li class="context-menu-item-li">
+
+        {{#if subMenu}}
+            <a class="context-menu-item sub-menu-item" tabindex="-1" href="#" procedure="{{procedure}}" data="{{data}}" index="{{index}}">{{item}} <i class="fa fa-play pull-right" style="padding-top: 2px; font-size: 10px; color: rgb(119, 119, 119);"></i></a>
+            <ul class="dropdown-menu sub-menu" role="menu" style="display:none; position:absolute; left:0px; top:0px;">
+
+                {{#each subMenu}}
+                    {{> menu_item}}
+                {{/each}}
+            </ul>
+
+        {{else}}
+            <a class="context-menu-item" tabindex="-1" href="#" procedure="{{procedure}}" data="{{data}}" index="{{index}}">{{item}}</a>
+
+        {{/if}}
+
+    </li>
+
+</template>
+
+
+<template name="errorMessages">
+    {{#with error_msg}}
+
+        <div class="alert alert-{{error_msg.type}}">
+            {{error_msg.text}}
+        </div>
+
+    {{/with}}
+</template>
+
+<template name="editingMessage">
+
+    {{#with editing}}
+
+        {{#if lockingButton}}
+            <div class="alert alert-success clearfix">
+                <button id="lockDiagram" type="button" class="btn btn-success btn-xs pull-right1">{{_ "diagram_edit_button"}}</button>
+                {{_ "diagram_can_be_edited"}}
+            </div>
+        {{/if}}
+
+        {{#if unLockButton}}
+            <div class="alert alert-info clearfix" style="min">
+                <button id="unLockDiagram" type="button" class="btn btn-info btn-xs pull-right1">{{_ "diagram_unlock_button"}}</button>
+                {{_ "diagram_is_edited"}}
+            </div>
+        {{/if}}
+
+        {{#if isEdited}}
+            <div class="alert alert-warning clearfix">
+                <button id="lockDiagram" type="button" class="btn btn-warning btn-xs pull-right1">{{_ "diagram_unlock_button"}}</button>
+                {{_ "diagram_locked" user=userName}}
+            </div>
+        {{/if}}
+
+    {{/with}}
+
+</template>

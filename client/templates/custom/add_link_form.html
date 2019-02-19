@@ -1,0 +1,167 @@
+
+<template name="AddLink">
+<style>
+    div.modal-body {
+        margin-top: 0px;
+        padding-top: 0px;
+        overflow-y: auto;
+        max-height: 60vh;
+        min-height: 140px;             
+    }
+
+    div.link-type-part {
+        position: relative;
+        float: right;
+        background-color: white;
+        margin-left: 10px;
+        margin-right: 10px;
+        width: 30%;        
+    }
+
+    .help-tip{
+        position: relative;
+        display:inline;
+        padding-right: 3px;
+        padding-left: 5px;
+        text-align: center;
+        background-color: silver;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        font-size: 12px;
+        line-height: 26px;
+        cursor: help;
+    }
+
+    .help-tip:before{
+        content:'?';
+        font-weight: bold;
+        color:#fff;       
+    }
+
+    .help-tip:hover p{
+        display: block;
+    }
+
+    .help-tip p{
+        display: none;
+        text-align: left;
+        color: white;
+        border: 1px solid #7F7F7F;
+        background-color: slategrey; 
+        border-radius: 5px;       
+        padding: 10px;
+        width: 200px;
+        position: absolute;
+        right: 105%; 
+        z-index: 1000;
+    }    
+</style>
+
+	<!-- Modal for new document -->
+    <div id="add-link-form" class="modal fade">
+        
+        <div class="modal-dialog" style="width:750px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Add Link</h4>
+                </div>
+   
+                <div class="link-type-part">
+                    <form id="type-choice" class="form-horizontal" role="form">
+                        <div class="form-group">                            
+                            <div name="chain">                       
+                                <label class="label-radio">                                    
+                                    <input type="radio" name="type-radio" value="JOIN" checked="checked">
+                                    <span class="custom-radio"></span>
+                                    Join Link &ensp;
+                                    <div class="help-tip">
+                                        <p>Use to join linked instances of both classes.</p>
+                                    </div>
+                                </label>
+                                <!-- <br style="line-height: 200%;"> -->
+                                <label class="label-radio">
+                                    <input type="radio" name="type-radio" value="NESTED">
+                                    <span class="custom-radio"></span>
+                                    Nested Query Link &ensp;
+                                    <div class="help-tip">
+                                        <p>Use for aggregates (count, sum, max, ...) over linked class. Use to check, if a linked class instance exists.</p>
+                                    </div>
+                                </label>
+
+                                <div style="margin-left:15px; margin-right: 20px;"> <!-- "display:inline;" -->
+                                    <input type="checkbox" id="goto-wizard" value="DISPLAY" disabled>
+                                    <span class="custom-checkbox"></span>
+                                    Use Aggregate wizard
+                                </div> 
+                            </div>
+                        </div>                        
+                    </form>                    
+                </div>
+               
+                <div class="modal-body">
+                    <form id="link-list-form" class="form-horizontal" role="form">                        
+                        <div class="form-group">                   
+                            {{#each associations}}
+                                <div class="col-lg-10 association" name="{{name}}" className="{{class}}" line_direct="{{type}}">
+                                    <label class="label-radio">
+                                        <input type="radio" name="stack-radio" value="{{name}}" card={{card}}>
+                                        <span class="custom-radio"></span>
+                                        <span style="{{clr}}">{{name}} {{type}} {{card}} {{class}} </span>
+                                    </label>
+                                </div>
+                            {{/each}}
+                        </div>
+                        <!-- <div class="form-group">
+                            <div class="col-sm-10">
+        						<input id="fileList" type='file' multiple/>
+                            </div>
+                        </div> -->
+                    </form> 
+                </div>
+
+                <div class="modal-footer">
+                    <button id="cancel-add-link" type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button id="ok-add-link" type="button" class="btn btn-primary">OK</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+
+    </div><!-- /.modal -->
+
+    <script>
+        //Show additional choices
+        $(document).ready(function(){                   
+            $('#type-choice').change(function(){
+                var checkedName = $('input[name=type-radio]').filter(':checked').val(); // console.log(checkedName);
+                if (checkedName === 'JOIN') {
+                    $('input[id=goto-wizard]:checked').attr('checked', false);
+                    $('input[id=goto-wizard]').attr('disabled',"disabled");
+                } else {
+                    $('input[id=goto-wizard]').removeAttr('disabled');
+                }            
+            });
+
+            var proj = Projects.findOne({_id: Session.get("activeProject")});
+            if (proj) {
+                if(proj.showCardinalities=="true"){            
+                    $('#link-list-form').change(function(){
+                        var checkedName = $('input[name=stack-radio]').filter(':checked').attr("card"); //console.log(checkedName);
+                        if (checkedName.indexOf("[*]") == -1){//max cardinality not [*]
+                            $('input[value=JOIN]').prop('checked', true);
+                            $('input[value=NESTED]').prop('checked', false);
+                            $('input[value=NESTED]').attr('disabled',"disabled");
+                            $('input[id=goto-wizard]:checked').attr('checked', false);
+                            $('input[id=goto-wizard]').attr('disabled',"disabled");
+                        } else {
+                            $('input[value=NESTED]').removeAttr('disabled');
+                            $('input[value=NESTED]').prop('checked', true);
+                            $('input[id=goto-wizard]').removeAttr('disabled');
+                        }                
+                    });
+                }
+            }
+        })
+    </script>
+</template>
