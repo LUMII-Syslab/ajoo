@@ -267,75 +267,6 @@
 </template>
 
 
-<template name="importOntology">
-
-    <!-- Modal for new document -->
-    <div id="import-ontology-form" class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Import</h4>
-                </div>
-                <div class="modal-body">
-                    <form class="form-horizontal" role="form">
-
-                        <div class="form-group">
-                            <div class="col-sm-10">
-                                <input id="fileList" type='file' multiple/>
-                            </div>
-                        </div>
-
-                    </form>
-                </div>
-
-                <div class="modal-footer">
-                    <button id="ok-import-ontology" type="button" class="btn btn-default">Import</button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">{{_ "close"}}</button>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-    <!-- End of modal -->
-
-</template>
-
-
-<template name="uploadProject">
-
-    <!-- Modal for new document -->
-    <div id="upload-project-form" class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Upload</h4>
-                </div>
-                <div class="modal-body">
-                    <form class="form-horizontal" role="form">
-
-                        <div class="form-group">
-                            <div class="col-sm-10">
-                                <input id="projectFileList" type='file' multiple/>
-                            </div>
-                        </div>
-
-                    </form>
-                </div>
-
-                <div class="modal-footer">
-                    <button id="ok-upload-project" type="button" class="btn btn-default">Upload</button>
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">{{_ "close"}}</button>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-    <!-- End of modal -->
-
-</template>
-
-
-
 <template name="configuratorDiagramOptions">
     {{#each configuratorDiagrams}}
         <option id="{{_id}}">{{name}}</option>
@@ -391,13 +322,13 @@
         {{#if is_toolbar_enabled}}
             <span class="ribbon-button-alignment pull-right1">
                 <button id="add" class="btn btn-ribbon" data-title="New Diagram">New diagram</button>
-                <button id="import" class="btn btn-ribbon" data-title="Import Ontology"><i class="fa fa-upload"></i></button>
+<!--                 <button id="import" class="btn btn-ribbon" data-title="Import Ontology"><i class="fa fa-upload"></i></button>
             	<button id="settings" class="btn btn-ribbon" data-title="Settings"><i class="fa fa-gear"></i></button>
             	<a id="download-project" class="btn btn-ribbon" data-title="Download Project"><i class="fa fa-cloud-download"></i></a>
 
             	<a id="upload-project" class="btn btn-ribbon" data-title="Upload Project"><i class="fa fa-cloud-upload"></i></a>
 
-                <button id="migrate" class="btn btn-ribbon" data-title="Migrate"><i class="fa fa-wrench"></i></button>
+                <button id="migrate" class="btn btn-ribbon" data-title="Migrate"><i class="fa fa-wrench"></i></button> -->
 
             </span>
         {{/if}}
@@ -406,165 +337,9 @@
     <!-- END RIBBON -->
 
     {{> addDiagram}}
-    {{> importOntology}}
-    {{> uploadProject}}
-    {{> ontologySettings}}
-    {{> migrateForm}}
 
 <!--     <a id="download-hack" style="display:none;">project-data</a> -->
 
     <div id="download-hack" style="display:none;"></div>
 
-</template>
-
-
-<template name="ontologySettings">
-
-    <!-- Modal for new document -->
-    <div id="ontology-settings-form" class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Project Settings</h4>
-                </div>
-                <div class="modal-body">
-                    <form class="form-horizontal" role="form">
-
-                      <div class="form-group">
-                          <label for="ontology-endpoint" class="col-sm-3 control-label">SPARQL Endpoint</label>
-                          <div class="col-sm-9">
-                              <input id="ontology-endpoint" type="text" class="form-control" value="{{endpoint}}">
-                          </div>
-                      </div>
-
-                        <div class="form-group">
-                            <label for="ontology-uri" class="col-sm-3 control-label">Named Graph</label>
-                            <div class="col-sm-9">
-                                <input id="ontology-uri" type="text" class="form-control" value="{{uri}}">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="use-string-literal-conversion" class="col-sm-3 control-label">Use String Literal Conversion</label>
-                            <div class="col-sm-9">
-                                <select class="form-control" id="use-string-literal-conversion" value="{{useStringLiteralConversion}}">
-                                  <option>SIMPLE</option>
-                                  <option>TYPED</option>
-                                  <option>OFF</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="query-engine-type" class="col-sm-3 control-label">Query Engine Type</label>
-                            <div class="col-sm-9">
-                                <select class="form-control" id="query-engine-type" value="{{queryEngineType}}">
-                                  <option>VIRTUOSO</option>
-                                  <option>GENERAL</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="col-sm-5">
-                                <label class="form-check-label">
-                                 <input class="form-check-input" id="use-default-grouping-separator" type="checkbox" checked="{{useDefaultGroupingSeparator}}">
-                                 <span class="custom-checkbox"></span>
-                                 Use Default Grouping Separator
-                              </label>
-                            </div>
-                            <div class="col-sm-5">
-                                <input id="default-grouping-separator" type="text" class="form-control" value="{{defaultGroupingSeparator}}" disabled="{{NOTuseDefaultGroupingSeparator}}">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="direct-class-membership-role" class="col-sm-3 control-label">Direct Class Membership Role</label>
-                            <div class="col-sm-9">
-                                <input id="direct-class-membership-role" type="text" class="form-control" value="{{directClassMembershipRole}}">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="indirect-class-membership-role" class="col-sm-3 control-label">Indirect Class Membership Role</label>
-                            <div class="col-sm-9">
-                                <input id="indirect-class-membership-role" type="text" class="form-control" value="{{indirectClassMembershipRole}}">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="col-sm-5">
-                                <label class="form-check-label">
-                                 <input class="form-check-input" id="show-cardinalities" type="checkbox" checked="{{showCardinalities}}">
-                                 <span class="custom-checkbox"></span>
-                                 Show Cardinalities
-                              </label>
-                            </div>
-                        </div>
-						
-						 <div class="form-group">
-                            <div class="col-sm-5">
-                                <label class="form-check-label">
-                                 <input class="form-check-input" id="auto-hide-default-property-name" type="checkbox" checked="{{autoHideDefaultPropertyName}}">
-                                 <span class="custom-checkbox"></span>
-                                 Auto-hide default property name
-                              </label>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="modal-footer">
-
-                    <button id="test-endpoint" type="button" class="btn btn-danger">Test endpoint</button>
-                    <button id="cancel-ontology-settings" type="button" class="btn btn-default" data-dismiss="modal">{{_ "cancel"}}</button>
-                    <button id="ok-ontology-settings" type="button" data-dismiss="modal" class="btn btn-primary">{{_ "ok"}}</button>
-
-                    {{#if msg.text}}
-                        <ul class="parsley-error-list" style="display: block;">
-                            <li style="display: list-item;">{{msg.text}}</li>
-                        </ul>
-                    {{/if}}
-
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-    <!-- End of modal -->
-
-</template>
-
-<template name="migrateForm">
-
-    <div id="migrate-form" class="modal fade">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Migrate</h4>
-                </div>
-                <div class="modal-body">
-                    <form class="form-horizontal" role="form">
-
-                        <div class="form-group">
-                            <label for="diagramType" class="control-label col-sm-2">Migrate To</label>
-                            <div class="col-sm-10">
-                                <select class="form-control" id="migrate-tools">
-                                    {{#each tools}}
-                                        <option id="{{_id}}" value={{name}}>{{name}}</option>
-                                    {{/each}}
-                                </select>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">{{_ "cancel"}}</button>
-                    <button id="migrate-to" type="button" class="btn btn-primary">{{_ "ok"}}</button>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-<!-- End of modal -->
 </template>
