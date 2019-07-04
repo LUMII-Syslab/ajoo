@@ -106,11 +106,9 @@ function loginWithPassword(name, password) {
 
 
 login_on_success = function() {
-
 	var list = {};
 	var meteor_user = Meteor.user();
 	Meteor.subscribe("LoginUser", list, function() {
-		
 		var user = Users.findOne({systemId: meteor_user["_id"]});
 		if (user) {
 			redirect_on_login(user);
